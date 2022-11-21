@@ -9,9 +9,6 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
 from sklearn.preprocessing import StandardScaler
 
-# from sklearn.model_selection import train_test_split
-# from sklearn.linear_model import LogisticRegression
-
 
 class ImageAnnotations3D():
     def __init__(self, xyz, imgs, ax3d, ax2d, flag=None):
@@ -142,19 +139,15 @@ class VisExtract():
         x = np.arange(np.min(self.data[:, 0]), np.max(self.data[:, 0]), 0.5)
         y = np.arange(np.min(self.data[:, 1]), np.max(self.data[:, 1]), 0.5)
 
-        x_ax, y_ax = np.meshgrid(x, y)
-        vals = np.zeros((len(x), len(y)))
-
-        for k in range(len(x)):
-            for l in range(len(y)):
-                vals[k][l] = VisExtract.f_xy(params[0], params[1], params[2], params[3], y[l], x[k])
+        x, y = np.meshgrid(x, y)
+        eq = VisExtract.f_xy(params[0], params[1], params[2], params[3], x, y)
 
         fig = plt.figure()
         ax_3d = fig.add_subplot(111, projection='3d')
         ax_3d.set_xlabel('x')
         ax_3d.set_ylabel('y')
         ax_3d.set_zlabel('z')
-        ax_3d.plot_surface(x_ax, y_ax, np.transpose(vals), cmap='spring', alpha=0.95)
+        ax_3d.plot_surface(x, y, eq, cmap='spring', alpha=0.95)
 
         ax_3d.set_xlabel('R channel')
         ax_3d.set_ylabel('G channel')
@@ -196,4 +189,4 @@ class VisExtract():
 # (trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
 # model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
 #
-# tst.add_hyperplane(list((model.intercept_[0], model.coef_[0][0], model.coef_[0][1], model.coef_[0][2])))
+# tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
