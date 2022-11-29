@@ -1,10 +1,8 @@
 import random
-
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import cv2
-from random import choice
 from numpy import any
 from matplotlib import offsetbox
 from mpl_toolkits.mplot3d import Axes3D
@@ -69,19 +67,16 @@ class VisExtract():
 
     def filer(self):
         scaler = StandardScaler()
-        cnt = self.num
-        filelist = random.choices(os.listdir(f'{self.file_name}'), k=cnt)
+        filelist = random.choices(os.listdir(f'{self.file_name}'), k=self.num)
         for file in filelist:
             img = cv2.imread(f'{self.file_name}/{file}')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-            self.xs.append(img[:, :, 0].mean())
-            self.ys.append(img[:, :, 1].mean())
-            self.zs.append(img[:, :, 2].mean())
-
             img = cv2.resize(img, (200, 200), interpolation=cv2.INTER_CUBIC)
 
             if file[0] == '1':
+                self.xs.append(img[:, :, 0].mean())
+                self.ys.append(img[:, :, 1].mean())
+                self.zs.append(img[:, :, 2].mean())
                 cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (255, 0, 0), thickness=35,
                                markerType=cv2.MARKER_DIAMOND)
                 img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
@@ -89,6 +84,9 @@ class VisExtract():
                 self.y.append(int(file[0]))
 
             if file[0] == '0':
+                self.xs.append(img[:, :, 0].mean())
+                self.ys.append(img[:, :, 1].mean())
+                self.zs.append(img[:, :, 2].mean())
                 cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (0, 255, 0), thickness=35,
                                markerType=cv2.MARKER_DIAMOND)
                 img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
@@ -97,18 +95,21 @@ class VisExtract():
 
             if self.ships is True:
                 if file[0] == '2':
+                    self.xs.append(img[:, :, 0].mean())
+                    self.ys.append(img[:, :, 1].mean())
+                    self.zs.append(img[:, :, 2].mean())
                     cv2.drawMarker(img, (img.shape[0] // 3, img.shape[1] // 2), (0, 255, 255), thickness=35,
                                    markerType=cv2.MARKER_CROSS)
                     img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
                     self.imgs.append(img)
                     self.y.append(int(file[0]))
 
-        # os.remove(f'{file_name}/{file}')
         self.xs, self.ys, self.zs = np.array(self.xs),  np.array(self.ys), np.array(self.zs)
-        # Need to fix 3x-transforming
+
         self.xs, self.ys, self.zs = scaler.fit_transform(self.xs.reshape(-1, 1)),\
                                     scaler.fit_transform(self.ys.reshape(-1, 1)),\
                                     scaler.fit_transform(self.zs.reshape(-1, 1))
+
         self.y = np.array(self.y).reshape(-1, 1)
         self.data = np.c_[self.xs, self.ys, self.zs]
 
@@ -169,9 +170,11 @@ class VisExtract():
 
         if self.ships is True:
             ships = np.where(self.y == 2)
+            self.ax.scatter(self.xs[ships[0]], self.ys[ships[0]], self.zs[ships[0]], alpha=0, color='b', marker='*')
 
-        self.ax.scatter(self.xs[pos], self.ys[pos], self.zs[pos], alpha=0, color='r', marker='x')
-        self.ax.scatter(self.xs[neg], self.ys[neg], self.zs[neg], alpha=0, color='g', marker='o')
+        self.ax.scatter(self.xs[pos[0]], self.ys[pos[0]], self.zs[pos[0]], alpha=0, color='r', marker='x')
+        self.ax.scatter(self.xs[neg[0]], self.ys[neg[0]], self.zs[neg[0]], alpha=0, color='g', marker='o')
+
 
         self.ax2 = self.fig.add_subplot(111, frame_on=False)
         self.ax2.axis("off")
