@@ -1,16 +1,14 @@
+import random
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import cv2
-from random import choice
 from numpy import any
 from matplotlib import offsetbox
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
 from sklearn.preprocessing import StandardScaler
-
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+random.seed(41)
 
 
 class ImageAnnotations3D():
@@ -69,53 +67,58 @@ class VisExtract():
 
     def filer(self):
         scaler = StandardScaler()
-        cnt = self.num
-        filelist = os.listdir(f'{self.file_name}')
-        while len(filelist) != 0:
-            file = choice(filelist)
+        filelist = random.choices(os.listdir(f'{self.file_name}'), k=self.num)
+        for file in filelist:
             img = cv2.imread(f'{self.file_name}/{file}')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = cv2.resize(img, (380, 380), interpolation=cv2.INTER_CUBIC)
+            img = cv2.resize(img, (200, 200), interpolation=cv2.INTER_CUBIC)
 
             if file[0] == '1':
-                cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (255, 0, 0), thickness=50,
-                               markerType=cv2.MARKER_DIAMOND)
-                img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
-                self.imgs.append(img)
                 self.xs.append(img[:, :, 0].mean())
                 self.ys.append(img[:, :, 1].mean())
                 self.zs.append(img[:, :, 2].mean())
-                self.y.append(int(file[0]))
-
-            else:
-                cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (0, 255, 0), thickness=50,
+                cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (255, 0, 0), thickness=35,
                                markerType=cv2.MARKER_DIAMOND)
                 img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
                 self.imgs.append(img)
+                self.y.append(int(file[0]))
+
+            if file[0] == '0':
                 self.xs.append(img[:, :, 0].mean())
                 self.ys.append(img[:, :, 1].mean())
                 self.zs.append(img[:, :, 2].mean())
+                cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (0, 255, 0), thickness=35,
+                               markerType=cv2.MARKER_DIAMOND)
+                img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
+                self.imgs.append(img)
                 self.y.append(int(file[0]))
 
-            cnt -= 1
-            # os.remove(f'{file_name}/{file}')
-            filelist.remove(file)
-            if cnt == 0:
-                self.xs, self.ys, self.zs = np.array(self.xs),  np.array(self.ys), np.array(self.zs)
+            if self.ships is True:
+                if file[0] == '2':
+                    self.xs.append(img[:, :, 0].mean())
+                    self.ys.append(img[:, :, 1].mean())
+                    self.zs.append(img[:, :, 2].mean())
+                    cv2.drawMarker(img, (img.shape[0] // 3, img.shape[1] // 2), (0, 255, 255), thickness=35,
+                                   markerType=cv2.MARKER_CROSS)
+                    img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
+                    self.imgs.append(img)
+                    self.y.append(int(file[0]))
 
-                self.xs, self.ys, self.zs = scaler.fit_transform(self.xs.reshape(-1, 1)),\
-                                            scaler.fit_transform(self.ys.reshape(-1, 1)),\
-                                            scaler.fit_transform(self.zs.reshape(-1, 1))
+        self.xs, self.ys, self.zs = np.array(self.xs),  np.array(self.ys), np.array(self.zs)
 
-                self.y = np.array(self.y).reshape(-1, 1)
-                self.data = np.c_[self.xs, self.ys, self.zs]
-                break
+        self.xs, self.ys, self.zs = scaler.fit_transform(self.xs.reshape(-1, 1)),\
+                                    scaler.fit_transform(self.ys.reshape(-1, 1)),\
+                                    scaler.fit_transform(self.zs.reshape(-1, 1))
 
-    def __init__(self, file_name, num, action):
+        self.y = np.array(self.y).reshape(-1, 1)
+        self.data = np.c_[self.xs, self.ys, self.zs]
+
+    def __init__(self, file_name, num, action='show', ships=False):
 
         self.imgs = []
         self.action = action
         self.data = None
+        self.ships = ships
 
         # R, G, B
         self.xs = []
@@ -162,11 +165,16 @@ class VisExtract():
 
     def plotter(self, flag=None):
 
-        self.pos = np.where(self.y == 1)
-        self.neg = np.where(self.y == 0)
+        pos = np.where(self.y == 1)
+        neg = np.where(self.y == 0)
 
-        self.ax.scatter(self.xs[self.pos], self.ys[self.pos], self.zs[self.pos], alpha=0, color='r', marker='x')
-        self.ax.scatter(self.xs[self.neg], self.ys[self.neg], self.zs[self.neg], alpha=0, color='g', marker='o')
+        if self.ships is True:
+            ships = np.where(self.y == 2)
+            self.ax.scatter(self.xs[ships[0]], self.ys[ships[0]], self.zs[ships[0]], alpha=0, color='b', marker='*')
+
+        self.ax.scatter(self.xs[pos[0]], self.ys[pos[0]], self.zs[pos[0]], alpha=0, color='r', marker='x')
+        self.ax.scatter(self.xs[neg[0]], self.ys[neg[0]], self.zs[neg[0]], alpha=0, color='g', marker='o')
+
 
         self.ax2 = self.fig.add_subplot(111, frame_on=False)
         self.ax2.axis("off")
@@ -187,9 +195,10 @@ class VisExtract():
             plt.savefig(f'{np.random.randint(0, 10)}')
 
 
-tst = VisExtract('data', 100, 'show')
+# tst = VisExtract('data', 100, 'show', ships=True)
+#
+# (trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
+# model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
+#
+# tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
 
-(trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
-model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
-
-tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
