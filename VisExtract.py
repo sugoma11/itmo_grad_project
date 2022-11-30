@@ -9,6 +9,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
 from sklearn.preprocessing import StandardScaler
 
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
 
 class ImageAnnotations3D():
     def __init__(self, xyz, imgs, ax3d, ax2d, flag=None):
@@ -184,9 +187,9 @@ class VisExtract():
             plt.savefig(f'{np.random.randint(0, 10)}')
 
 
-# tst = VisExtract('data', 100, 'show')
-#
-# (trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
-# model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
-#
-# tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
+tst = VisExtract('data', 100, 'show')
+
+(trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
+model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
+
+tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
