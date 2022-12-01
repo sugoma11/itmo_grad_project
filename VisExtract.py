@@ -8,8 +8,8 @@ from matplotlib import offsetbox
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
 from sklearn.preprocessing import StandardScaler
-random.seed(41)
-
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
 
 class ImageAnnotations3D():
     def __init__(self, xyz, imgs, ax3d, ax2d, flag=None):
@@ -67,7 +67,7 @@ class VisExtract():
 
     def filer(self):
         scaler = StandardScaler()
-        filelist = random.choices(os.listdir(f'{self.file_name}'), k=self.num)
+        filelist = np.random.choice(os.listdir(f'{self.file_name}'), size=self.num)
         for file in filelist:
             img = cv2.imread(f'{self.file_name}/{file}')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -114,7 +114,7 @@ class VisExtract():
         self.data = np.c_[self.xs, self.ys, self.zs]
 
     def __init__(self, file_name, num, action='show', ships=False):
-
+        np.random.seed(41)
         self.imgs = []
         self.action = action
         self.data = None
@@ -161,20 +161,20 @@ class VisExtract():
 
         ax_3d.scatter(self.xs[self.pos], self.ys[self.pos], self.zs[self.pos], alpha=1, color='r', marker='x')
         ax_3d.scatter(self.xs[self.neg], self.ys[self.neg], self.zs[self.neg], alpha=1, color='g', marker='o')
+        #ax_3d.view_init(30, 150)
         plt.show()
 
     def plotter(self, flag=None):
 
-        pos = np.where(self.y == 1)
-        neg = np.where(self.y == 0)
+        self.pos = np.where(self.y == 1)
+        self.neg = np.where(self.y == 0)
 
         if self.ships is True:
             ships = np.where(self.y == 2)
             self.ax.scatter(self.xs[ships[0]], self.ys[ships[0]], self.zs[ships[0]], alpha=0, color='b', marker='*')
 
-        self.ax.scatter(self.xs[pos[0]], self.ys[pos[0]], self.zs[pos[0]], alpha=0, color='r', marker='x')
-        self.ax.scatter(self.xs[neg[0]], self.ys[neg[0]], self.zs[neg[0]], alpha=0, color='g', marker='o')
-
+        self.ax.scatter(self.xs[self.pos[0]], self.ys[self.pos[0]], self.zs[self.pos[0]], alpha=0, color='r', marker='x')
+        self.ax.scatter(self.xs[self.neg[0]], self.ys[self.neg[0]], self.zs[self.neg[0]], alpha=0, color='g', marker='o')
 
         self.ax2 = self.fig.add_subplot(111, frame_on=False)
         self.ax2.axis("off")
@@ -186,8 +186,6 @@ class VisExtract():
         self.ax.set_ylabel('G channel')
         self.ax.set_zlabel('B channel')
 
-        # ax.view_init(30, 180)
-
         if self.action == 'show':
             plt.show()
 
@@ -195,10 +193,9 @@ class VisExtract():
             plt.savefig(f'{np.random.randint(0, 10)}')
 
 
-# tst = VisExtract('data', 100, 'show', ships=True)
+#tst = VisExtract('data', 100, 'show')
+#(trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
+#model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
 #
-# (trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
-# model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
-#
-# tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
+#tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
 
