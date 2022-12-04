@@ -159,8 +159,9 @@ class VisExtract():
         ax_3d.set_ylabel('G channel')
         ax_3d.set_zlabel('B channel')
 
-        ax_3d.scatter(self.xs[self.pos], self.ys[self.pos], self.zs[self.pos], alpha=1, color='r', marker='x')
-        ax_3d.scatter(self.xs[self.neg], self.ys[self.neg], self.zs[self.neg], alpha=1, color='g', marker='o')
+        ax_3d.scatter(self.xs[self.pos], self.ys[self.pos], self.zs[self.pos], alpha=1, color='r', marker='x', label='dirty')
+        ax_3d.scatter(self.xs[self.neg], self.ys[self.neg], self.zs[self.neg], alpha=1, color='g', marker='o', label='clear')
+        ax_3d.legend()
         #ax_3d.view_init(30, 150)
         plt.show()
 
