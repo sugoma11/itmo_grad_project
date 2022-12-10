@@ -74,9 +74,19 @@ class VisExtract():
             img = cv2.resize(img, (200, 200), interpolation=cv2.INTER_CUBIC)
 
             if file[0] == '1':
-                self.xs.append(img[:, :, 0].mean())
-                self.ys.append(img[:, :, 1].mean())
-                self.zs.append(img[:, :, 2].mean())
+                if self.aver == 'mean':
+                    self.xs.append(img[:, :, 0].mean())
+                    self.ys.append(img[:, :, 1].mean())
+                    self.zs.append(img[:, :, 2].mean())
+                else:
+                    modes = []
+                    for i in range(0, 3):
+                        vals, counts = np.unique(img[:, :, i], return_counts=True)
+                        modes.append(vals[np.argmax(counts)])
+                    self.xs.append(modes[0])
+                    self.ys.append(modes[1])
+                    self.zs.append(modes[2])
+
                 cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (255, 0, 0), thickness=35,
                                markerType=cv2.MARKER_DIAMOND)
                 img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
@@ -84,9 +94,19 @@ class VisExtract():
                 self.y.append(int(file[0]))
 
             if file[0] == '0':
-                self.xs.append(img[:, :, 0].mean())
-                self.ys.append(img[:, :, 1].mean())
-                self.zs.append(img[:, :, 2].mean())
+                if self.aver == 'mean':
+                    self.xs.append(img[:, :, 0].mean())
+                    self.ys.append(img[:, :, 1].mean())
+                    self.zs.append(img[:, :, 2].mean())
+                else:
+                    modes = []
+                    for i in range(0, 3):
+                        vals, counts = np.unique(img[:, :, i], return_counts=True)
+                        modes.append(vals[np.argmax(counts)])
+                    self.xs.append(modes[0])
+                    self.ys.append(modes[1])
+                    self.zs.append(modes[2])
+
                 cv2.drawMarker(img, (img.shape[0] // 2, img.shape[1] // 2), (0, 255, 0), thickness=35,
                                markerType=cv2.MARKER_DIAMOND)
                 img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
@@ -95,9 +115,19 @@ class VisExtract():
 
             if self.ships is True:
                 if file[0] == '2':
-                    self.xs.append(img[:, :, 0].mean())
-                    self.ys.append(img[:, :, 1].mean())
-                    self.zs.append(img[:, :, 2].mean())
+                    if self.aver == 'mean':
+                        self.xs.append(img[:, :, 0].mean())
+                        self.ys.append(img[:, :, 1].mean())
+                        self.zs.append(img[:, :, 2].mean())
+                    else:
+                        modes = []
+                        for i in range(0, 3):
+                            vals, counts = np.unique(img[:, :, i], return_counts=True)
+                            modes.append(vals[np.argmax(counts)])
+                        self.xs.append(modes[0])
+                        self.ys.append(modes[1])
+                        self.zs.append(modes[2])
+
                     cv2.drawMarker(img, (img.shape[0] // 3, img.shape[1] // 2), (0, 255, 255), thickness=35,
                                    markerType=cv2.MARKER_CROSS)
                     img = cv2.resize(img, (10, 10), interpolation=cv2.INTER_CUBIC)
@@ -113,12 +143,13 @@ class VisExtract():
         self.y = np.array(self.y).reshape(-1, 1)
         self.data = np.c_[self.xs, self.ys, self.zs]
 
-    def __init__(self, file_name, num, action='show', ships=False):
+    def __init__(self, file_name, num, action='show', ships=False, aver='mean'):
         np.random.seed(41)
         self.imgs = []
         self.action = action
         self.data = None
         self.ships = ships
+        self.aver = aver
 
         # R, G, B
         self.xs = []
@@ -194,7 +225,7 @@ class VisExtract():
             plt.savefig(f'{np.random.randint(0, 10)}')
 
 
-#tst = VisExtract('data', 100, 'show')
+#tst = VisExtract('data', 311, 'show', ships=True, aver='mode')
 #(trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
 #model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
 #
