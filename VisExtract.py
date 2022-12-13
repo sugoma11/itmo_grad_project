@@ -225,6 +225,17 @@ class VisExtract():
             plt.savefig(f'{np.random.randint(0, 10)}')
 
 
+    @staticmethod
+    def two_dim_im_graph(xy, im):
+        for i, image in enumerate(im):
+            fig = plt.gcf()
+            ax = plt.subplot(111)
+            arr_hand = cv2.resize(image, (300, 300), interpolation=cv2.INTER_AREA)
+            imagebox = offsetbox.OffsetImage(arr_hand, filterrad=1.0, dpi_cor=0, zoom=0.0875)
+            ab = offsetbox.AnnotationBbox(imagebox, [xy[i][0], xy[i][1]], frameon=0)
+            ax.add_artist(ab)
+        ax.scatter(xy[:, 0], xy[:, 1])
+
 #tst = VisExtract('data', 311, 'show', ships=True, aver='mode')
 #(trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
 #model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
