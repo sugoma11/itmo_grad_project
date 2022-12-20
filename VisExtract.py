@@ -224,21 +224,41 @@ class VisExtract():
         elif self.action == 'save':
             plt.savefig(f'{np.random.randint(0, 10)}')
 
+    def two_dim_im_graph(self, xy, im, flag=None, alpha=1):
 
-    @staticmethod
-    def two_dim_im_graph(xy, im):
+        if flag == 'clr':
+            cl = np.where(self.y == 0)
+
+        if flag == 'drt':
+            dr = np.where(self.y == 1)
+
         for i, image in enumerate(im):
+
             fig = plt.gcf()
             ax = plt.subplot(111)
             arr_hand = cv2.resize(image, (300, 300), interpolation=cv2.INTER_AREA)
-            imagebox = offsetbox.OffsetImage(arr_hand, filterrad=1.0, dpi_cor=0, zoom=0.0875)
-            ab = offsetbox.AnnotationBbox(imagebox, [xy[i][0], xy[i][1]], frameon=0)
-            ax.add_artist(ab)
+            imagebox = offsetbox.OffsetImage(arr_hand, filterrad=1.0, dpi_cor=0, zoom=0.0875, alpha=alpha)
+
+            if flag is not None:
+
+                if flag == 'clr':
+                    if i in cl[0]:
+                        ab = offsetbox.AnnotationBbox(imagebox, [xy[i][0], xy[i][1]], frameon=0)
+                        ax.add_artist(ab)
+
+                if flag == 'drt':
+                    if i in dr[0]:
+                        ab = offsetbox.AnnotationBbox(imagebox, [xy[i][0], xy[i][1]], frameon=0)
+                        ax.add_artist(ab)
+            else:
+                ab = offsetbox.AnnotationBbox(imagebox, [xy[i][0], xy[i][1]], frameon=0)
+                ax.add_artist(ab)
+
         ax.scatter(xy[:, 0], xy[:, 1])
 
-#tst = VisExtract('data', 311, 'show', ships=True, aver='mode')
+
+#tst = VisExtract('data', 100, 'show')
 #(trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
 #model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
 #
 #tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
-
