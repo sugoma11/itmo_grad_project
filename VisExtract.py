@@ -1,4 +1,3 @@
-import random
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -7,7 +6,6 @@ from numpy import any
 from matplotlib import offsetbox
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 
@@ -66,7 +64,6 @@ class ImageAnnotations3D():
 class VisExtract():
 
     def filer(self):
-        scaler = StandardScaler()
         filelist = np.random.choice(os.listdir(f'{self.file_name}'), size=self.num)
         for file in filelist:
             img = cv2.imread(f'{self.file_name}/{file}')
@@ -136,10 +133,6 @@ class VisExtract():
 
         self.xs, self.ys, self.zs = np.array(self.xs),  np.array(self.ys), np.array(self.zs)
 
-        self.xs, self.ys, self.zs = scaler.fit_transform(self.xs.reshape(-1, 1)),\
-                                    scaler.fit_transform(self.ys.reshape(-1, 1)),\
-                                    scaler.fit_transform(self.zs.reshape(-1, 1))
-
         self.y = np.array(self.y).reshape(-1, 1)
         self.data = np.c_[self.xs, self.ys, self.zs]
 
@@ -190,8 +183,10 @@ class VisExtract():
         ax_3d.set_ylabel('G channel')
         ax_3d.set_zlabel('B channel')
 
-        ax_3d.scatter(self.xs[self.pos], self.ys[self.pos], self.zs[self.pos], alpha=1, color='r', marker='x', label='dirty')
-        ax_3d.scatter(self.xs[self.neg], self.ys[self.neg], self.zs[self.neg], alpha=1, color='g', marker='o', label='clear')
+        ax_3d.scatter(self.xs[self.pos[0]], self.ys[self.pos[0]], self.zs[self.pos[0]], alpha=1, color='r', marker='x',
+                      label='clear')
+        ax_3d.scatter(self.xs[self.neg[0]], self.ys[self.neg[0]], self.zs[self.neg[0]], alpha=1, color='g', marker='o',
+                      label='dirty')
         ax_3d.legend()
         #ax_3d.view_init(30, 150)
         plt.show()
@@ -257,8 +252,8 @@ class VisExtract():
         ax.scatter(xy[:, 0], xy[:, 1])
 
 
-#tst = VisExtract('data', 100, 'show')
+#for debug and 3d rotation
+#tst = VisExtract('data', 320, 'show')
 #(trainData, testData, trainLabels, testLabels) = train_test_split(tst.data, tst.y, test_size=0.25, random_state=9)
 #model = LogisticRegression(random_state=0, solver='lbfgs').fit(trainData, trainLabels)
-#
 #tst.add_hyperplane(list((model.coef_[0][0], model.coef_[0][1], model.coef_[0][2], model.intercept_[0])))
